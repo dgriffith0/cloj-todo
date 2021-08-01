@@ -1,27 +1,45 @@
 (ns cloj-todo.data.todo-queries
   (:require [clojure.java.jdbc :as db]
-            [cloj-todo.database :as db-config]))
+            [cloj-todo.data.config :as db-config]))
+
 
 (defn all []
-  (db/query db-config/spec "select * from todo"))
+  (try (db/query db-config/spec "select * from todo")
+       (catch Exception e
+         (print (str e))
+         nil)))
 
-(defn get-by-id 
+(defn get-by-id
   [id]
-  (db/get-by-id db-config/spec :todo id :todo_id))
+  (try
+    (db/get-by-id db-config/spec :todo id :todo_id)
+    (catch Exception e
+      (print (str e))
+      nil)))
 
-;{:description "Seed the database"}
-(defn insert 
+(defn insert
   [todo]
-  (db/insert! db-config/spec :todo todo)
-)
+  (try
+    (db/insert! db-config/spec :todo todo)
+    (catch Exception e
+      (print (str e))
+      nil)))
 
-(defn update
+(defn update-todo
   [todo]
-  (db/update! db-config/spec :todo todo))
+  (try
+    (let [id (todo :todo_id)
+          updateable-fields (dissoc todo :todo_id :created_on)]
+      (println "id:" id "\nmap:" updateable-fields)
+      (db/update! db-config/spec :todo updateable-fields ["todo_id = ?" id]))
+      (catch Exception e
+        (print (str e))
+        nil)))
 
 (defn delete
   [id]
-  ((db/delete! db-config/spec :todo ["todo_id = ?" id])))
-
-
-
+  (try
+    (db/delete! db-config/spec :todo ["todo_id = ?" id])
+    (catch Exception e
+      (print (str e))
+      nil)))

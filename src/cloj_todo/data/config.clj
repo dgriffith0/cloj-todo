@@ -1,4 +1,4 @@
-(ns cloj-todo.database)
+(ns cloj-todo.data.config)
 
 (def spec
   {:classname   "org.sqlite.JDBC"
